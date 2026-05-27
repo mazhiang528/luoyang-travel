@@ -1,0 +1,652 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏯 洛阳旅游助手 · 2026.6.19-6.23</title>
+<style>
+:root {
+  --bg: #f8f5f0;
+  --card: #ffffff;
+  --primary: #2B579A;
+  --accent: #e8734a;
+  --green: #2e7d32;
+  --red: #c62828;
+  --gold: #f9a825;
+  --border: #e0dcd5;
+  --text: #333333;
+  --muted: #888888;
+  --tag-bg: #e8f0fe;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2B579A 50%, #1a5276 100%);
+  color: white;
+  padding: 16px 20px 12px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+header h1 { font-size: 22px; margin-bottom: 2px; }
+header .sub { font-size: 13px; opacity: .85; }
+
+/* ===== DAY TABS ===== */
+.tabs {
+  display: flex;
+  gap: 0;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 82px;
+  z-index: 99;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display:none; }
+.tab {
+  flex: 1;
+  min-width: 56px;
+  padding: 12px 6px;
+  text-align: center;
+  border: none;
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+.tab .day-num { display:block; font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+.tab .day-date { font-size: 11px; }
+
+/* ===== MAIN CONTENT ===== */
+main { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+/* Day panel */
+.day-panel { display: none; }
+.day-panel.active { display: block; }
+.day-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--primary);
+}
+.day-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  border: 1px solid var(--border);
+  transition: all .2s;
+}
+.card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.1); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.card-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.card-icon.museum { background: #e8f0fe; }
+.card-icon.temple { background: #fff3e0; }
+.card-icon.mountain { background: #e8f5e9; }
+.card-icon.food { background: #fce4ec; }
+.card-icon.gate { background: #f3e5f5; }
+.card-icon.garden { background: #e0f2f1; }
+
+.card-title { font-weight: 700; font-size: 16px; flex:1; }
+.card-time {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.card-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: #faf9f7;
+  border-radius: 8px;
+  border-left: 3px solid var(--gold);
+}
+
+/* Checklist */
+.checklist { margin-top: 10px; }
+.checklist label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0efec;
+}
+.checklist label:last-child { border-bottom: none; }
+.checklist input[type="checkbox"] {
+  width: 20px; height: 20px;
+  accent-color: var(--green);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.checklist input:checked + span { text-decoration: line-through; color: var(--muted); }
+
+/* ===== INFO GRID ===== */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.info-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.info-card .label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.info-card .value { font-size: 22px; font-weight: 800; color: var(--primary); }
+.info-card .value.small { font-size: 15px; }
+
+/* ===== MAP ===== */
+.map-container {
+  background: #f0ebe0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.map-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.map-area { position: relative; min-height: 200px; }
+.map-marker {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 600;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.map-marker .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 3px;
+}
+.map-marker.hotel .dot { background: var(--red); }
+.map-marker.day1 .dot { background: #7cb342; }
+.map-marker.day2 .dot { background: #ff7043; }
+.map-marker.day3 .dot { background: #ab47bc; }
+.map-marker.day4 .dot { background: #42a5f5; }
+.map-marker.day5 .dot { background: #ffa726; }
+
+.map-legend {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-top: 12px; font-size: 11px; color: var(--muted);
+}
+.map-legend span { display:flex; align-items:center; gap:4px; }
+.map-legend .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+/* ===== PROGRESS ===== */
+.progress-bar {
+  height: 8px;
+  background: #e8e5df;
+  border-radius: 4px;
+  margin: 12px 0 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 4px;
+  transition: width .3s;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all .2s;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-outline { background: white; border: 2px solid var(--primary); color: var(--primary); }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn:hover { opacity: .85; transform: translateY(-1px); }
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px; width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal h3 { margin-bottom: 12px; }
+.modal-close {
+  float: right; background: none; border: none;
+  font-size: 24px; cursor: pointer; color: var(--muted);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .info-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { padding: 12px; }
+  .card-title { font-size: 14px; }
+}
+
+/* ===== WEATHER WIDGET ===== */
+.weather-row {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding-bottom: 8px; margin-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.weather-row::-webkit-scrollbar { display:none; }
+.weather-day {
+  flex: 0 0 70px;
+  text-align: center;
+  padding: 10px 6px;
+  background: #f5f7fa;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.weather-day .w-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+.weather-day .w-temp { font-weight: 700; color: var(--primary); }
+
+/* Tip badge */
+.tip-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tip-badge.warn { background: #fff3e0; color: #e65100; }
+.tip-badge.good { background: #e8f5e9; color: #2e7d32; }
+.tip-badge.info { background: #e8f0fe; color: #1565c0; }
+
+/* Print styles */
+@media print {
+  header, .tabs, .toolbar, .btn { display: none; }
+  .day-panel { display: block !important; page-break-after: always; }
+  .card { box-shadow: none; border: 1px solid #ccc; }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.day-panel.active .card { animation: fadeIn .3s ease forwards; }
+.day-panel.active .card:nth-child(2) { animation-delay: .05s; }
+.day-panel.active .card:nth-child(3) { animation-delay: .1s; }
+.day-panel.active .card:nth-child(4) { animation-delay: .15s; }
+.day-panel.active .card:nth-child(5) { animation-delay: .2s; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏯 洛阳旅游助手</h1>
+  <div class="sub">2026.6.19 下午抵达 — 6.23 · 15个景点全覆盖</div>
+</header>
+
+<div class="tabs" id="tabs">
+  <button class="tab" data-day="0"><span class="day-num">总览</span><span class="day-date">Overview</span></button>
+  <button class="tab active" data-day="1"><span class="day-num">Day1</span><span class="day-date">6.19 周五</span></button>
+  <button class="tab" data-day="2"><span class="day-num">Day2</span><span class="day-date">6.20 周六</span></button>
+  <button class="tab" data-day="3"><span class="day-num">Day3</span><span class="day-date">6.21 周日</span></button>
+  <button class="tab" data-day="4"><span class="day-num">Day4</span><span class="day-date">6.22 周一</span></button>
+  <button class="tab" data-day="5"><span class="day-num">Day5</span><span class="day-date">6.23 周二</span></button>
+</div>
+
+<main id="main"></main>
+
+<script>
+// ===== DATA =====
+const days = [
+  { // Overview
+    title: "📊 行程总览",
+    subtitle: "5天5晚 · 15个景点 · 老城区住宿",
+    template: "overview"
+  },
+  {
+    title: "🟢 Day 1 · 下午抵达 + 小众开局",
+    subtitle: "6月19日 周五 · 人流量：中 · 先避开人群",
+    theme: "green",
+    weather: { icon: "☀️", hi: 33, lo: 22, desc: "晴" },
+    cards: [
+      { icon: "🏨", cat: "hotel", title: "抵达洛阳，酒店入住", time: "下午", note: "老城区 / 十字街附近，放行李就出门", check: ["办理入住", "熟悉周边环境"] },
+      { icon: "🏛️", cat: "museum", title: "隋唐大运河文化博物馆", time: "15:30 - 17:00", note: "新馆！建筑本身就是打卡点，知道的人少，人不多", check: ["提前预约门票", "拍照建筑外观", "看运河历史展"] },
+      { icon: "🐴", cat: "museum", title: "天子驾六博物馆", time: "17:00 - 18:00", note: "超小众，东周天子车马坑原址，30分钟逛完但很震撼", check: ["看车马坑遗址", "了解周代礼制"] },
+      { icon: "🏯", cat: "gate", title: "丽景门登楼 + 老街散步", time: "18:30 - 20:00", note: "傍晚城楼看日落，老街慢慢逛，拍照超出片", check: ["登丽景门城楼", "逛老街店铺", "拍夕阳下的古城"] },
+      { icon: "🍢", cat: "food", title: "十字街夜市", time: "20:00 开始", note: "洛阳最大夜市！烤面筋、涮牛肚、炒酸奶，一样来一点", check: ["烤面筋", "涮牛肚", "炒酸奶", "杏仁茶"] },
+    ]
+  },
+  {
+    title: "🟢 Day 2 · 白马寺 + 洛阳博物馆",
+    subtitle: "6月20日 周六 · 人流量：🔴 高 · 赶在周一闭馆前",
+    theme: "blue",
+    weather: { icon: "⛅", hi: 34, lo: 23, desc: "多云" },
+    cards: [
+      { icon: "🍜", cat: "food", title: "早餐：牛肉汤", time: "7:30", note: "马杰山牛肉汤，配饼，洛阳人的早餐灵魂", check: ["早起喝汤", "配油旋饼"] },
+      { icon: "🛕", cat: "temple", title: "白马寺", time: "8:30 - 12:00", note: "中国第一古刹！还有泰国、缅甸、印度风格国际佛殿区", check: ["天王殿", "大雄宝殿", "泰国佛殿拍照", "缅甸佛殿", "印度佛殿"] },
+      { icon: "🍚", cat: "food", title: "午餐", time: "12:30", note: "回市区吃，避开景区高价", check: [] },
+      { icon: "🏛️", cat: "museum", title: "洛阳博物馆", time: "14:00 - 17:00", note: "⚠️ 周一闭馆！今天是最后机会之一。镇馆之宝：唐三彩、夏代青铜器", check: ["提前3天公众号预约", "唐三彩展厅", "夏商周青铜器", "石刻艺术"] },
+      { icon: "🌃", cat: "garden", title: "洛邑古城", time: "19:00 - 21:00", note: "汉服体验 + 夜景，周六晚上气氛最浓", check: ["租汉服拍照", "逛文创店", "看灯光秀"] },
+    ]
+  },
+  {
+    title: "🟢 Day 3 · 古墓博物馆 + 关林 + 隋唐夜",
+    subtitle: "6月21日 周日 · 人流量：🔴 高 · 周一闭馆前最后窗口",
+    theme: "purple",
+    weather: { icon: "☀️", hi: 35, lo: 24, desc: "晴" },
+    cards: [
+      { icon: "🥘", cat: "food", title: "早餐", time: "8:30", note: "不翻汤 + 饼，酸辣开胃", check: ["不翻汤", "葱花饼"] },
+      { icon: "⚰️", cat: "museum", title: "洛阳古墓博物馆", time: "9:30 - 12:30", note: "⚠️ 周一也闭馆！今天最后机会。「地上看西安，地下看洛阳」，世界唯一古墓专题博物馆", check: ["地下墓道体验", "壁画展厅", "石刻棺椁"] },
+      { icon: "🍜", cat: "food", title: "午餐", time: "13:00", note: "关林附近随便吃点", check: [] },
+      { icon: "⚔️", cat: "temple", title: "关林", time: "14:30 - 17:00", note: "关羽首级埋葬处，千年柏树林参天，人不算多", check: ["关林正殿", "千年古柏", "碑刻长廊"] },
+      { icon: "🌸", cat: "garden", title: "九洲池", time: "17:30 - 18:30", note: "隋唐皇家园林遗址，傍晚光线拍照最佳", check: ["瑶光殿", "九曲桥"] },
+      { icon: "✨", cat: "gate", title: "应天门 + 明堂天堂", time: "19:30 - 21:00", note: "周日晚上灯光秀！穿汉服拍照超出片", check: ["应天门灯光秀", "明堂天堂夜景", "穿汉服拍照"] },
+    ]
+  },
+  {
+    title: "🟢 Day 4 · ⛰️ 老君山全天",
+    subtitle: "6月22日 周一 · 人流量：🟢 低 · 博物馆全关门，正好爬山",
+    theme: "teal",
+    weather: { icon: "⛅", hi: 28, lo: 16, desc: "多云（山顶较凉）" },
+    cards: [
+      { icon: "🚗", cat: "hotel", title: "出发前往老君山", time: "6:00", note: "包车或拼车，车程2-2.5小时。提前一天联系好司机！", check: ["确认包车", "带够水", "穿运动鞋"] },
+      { icon: "⛰️", cat: "mountain", title: "中天门 → 十里画屏 → 金顶", time: "9:00 - 12:00", note: "十里画屏是老君山精华！悬崖栈道，云海翻涌。两级索道都坐，省体力", check: ["一级索道·中灵索道", "二级索道·峰林索道", "十里画屏漫步", "看云海（祈祷晴天）"] },
+      { icon: "🍱", cat: "food", title: "山顶午餐", time: "12:00", note: "自带干粮，山上泡面¥20一碗", check: [] },
+      { icon: "🏯", cat: "temple", title: "金顶道观群", time: "13:00 - 15:00", note: "老君庙 → 玉皇顶 → 道德府 → 金殿，道教圣地金顶", check: ["老君庙", "玉皇顶", "金殿拍照"] },
+      { icon: "⬇️", cat: "mountain", title: "下山返回洛阳", time: "15:00 - 17:00", note: "索道下山，车上补觉", check: [] },
+      { icon: "🛁", cat: "hotel", title: "晚餐 + 休息", time: "19:30", note: "一天2万步+，泡个脚早点睡", check: [] },
+    ]
+  },
+  {
+    title: "🟢 Day 5 · 龙门石窟全天 + 亮灯收官",
+    subtitle: "6月23日 周二 · 人流量：🟢 低 · 工作日人少",
+    theme: "orange",
+    weather: { icon: "☀️", hi: 34, lo: 23, desc: "晴" },
+    cards: [
+      { icon: "🍜", cat: "food", title: "早餐", time: "8:30", note: "羊肉汤，汤白肉嫩", check: ["白沙羊肉汤"] },
+      { icon: "🪨", cat: "museum", title: "龙门石窟 · 西山石窟", time: "10:00 - 12:30", note: "周二上午人少！卢舍那大佛慢慢拍，宾阳三洞、万佛洞都不挤", check: ["卢舍那大佛", "宾阳三洞", "万佛洞", "莲花洞"] },
+      { icon: "🍚", cat: "food", title: "午餐", time: "12:30 - 13:30", note: "龙门古街或自带", check: [] },
+      { icon: "🌿", cat: "garden", title: "东山石窟 + 香山寺 + 白园", time: "13:30 - 15:30", note: "东山看西山全景，白居易墓园幽静", check: ["看经寺", "香山寺", "白居易墓"] },
+      { icon: "🍵", cat: "food", title: "龙门古街休息", time: "15:30 - 18:00", note: "找家茶馆等亮灯，龙门古街逛逛", check: ["喝茶休息", "逛古街"] },
+      { icon: "🌟", cat: "gate", title: "龙门夜景亮灯 + 返程", time: "18:00 - 19:30", note: "西山石窟逐个亮灯，超级震撼！完美收官，之后取行李返程", check: ["看亮灯仪式", "拍夜景", "取行李"] },
+    ]
+  }
+];
+
+// ===== STATE =====
+let activeDay = 1;
+const storageKey = "luoyang_checklist_v2";
+
+function loadChecks() {
+  try { return JSON.parse(localStorage.getItem(storageKey)) || {}; }
+  catch { return {}; }
+}
+function saveChecks(checks) {
+  localStorage.setItem(storageKey, JSON.stringify(checks));
+}
+
+const checks = loadChecks();
+
+function checkId(dayIdx, cardIdx, itemIdx) {
+  return `d${dayIdx}c${cardIdx}i${itemIdx}`;
+}
+
+function isChecked(dayIdx, cardIdx, itemIdx) {
+  return !!checks[checkId(dayIdx, cardIdx, itemIdx)];
+}
+
+function toggleCheck(dayIdx, cardIdx, itemIdx) {
+  const id = checkId(dayIdx, cardIdx, itemIdx);
+  checks[id] = !checks[id];
+  saveChecks(checks);
+  render();
+}
+
+// ===== PROGRESS =====
+function getDayProgress(dayIdx) {
+  if (dayIdx === 0) return getTotalProgress();
+  const day = days[dayIdx];
+  let total = 0, done = 0;
+  day.cards.forEach((card, ci) => {
+    card.check.forEach((_, ii) => {
+      total++;
+      if (isChecked(dayIdx, ci, ii)) done++;
+    });
+  });
+  return { total, done, pct: total ? Math.round(done/total*100) : 0 };
+}
+
+function getTotalProgress() {
+  let total = 0, done = 0;
+  for (let d = 1; d < days.length; d++) {
+    days[d].cards.forEach((card, ci) => {
+      card.check.forEach((_, ii) => {
+        total++;
+        if (isChecked(d, ci, ii)) done++;
+      });
+    });
+  }
+  return { total, done, pct: total ? Math.round(done/total*100) : 0 };
+}
+
+// ===== RENDER =====
+function render() {
+  const main = document.getElementById("main");
+  const day = days[activeDay];
+
+  if (activeDay === 0) {
+    // Overview
+    const totalProg = getTotalProgress();
+    main.innerHTML = `
+      <div class="day-panel active">
+        <div class="day-title">📊 行程总览</div>
+        <div class="day-subtitle">5天5晚 · 15个景点全覆盖 · 老城区住宿</div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="label">🏨 住宿</div>
+            <div class="value small">老城区十字街<br>4晚不动</div>
+          </div>
+          <div class="info-card">
+            <div class="label">📍 景点</div>
+            <div class="value">15</div>
+          </div>
+          <div class="info-card">
+            <div class="label">📅 日期</div>
+            <div class="value small">6.19 - 6.23</div>
+          </div>
+          <div class="info-card">
+            <div class="label">💰 预算</div>
+            <div class="value small">¥2800-4500<br><span style="font-size:11px;color:#888">人均</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:8px;">📈 完成进度</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${totalProg.pct}%"></div></div>
+          <div style="font-size:13px;color:var(--muted)">${totalProg.done}/${totalProg.total} 项已完成 (${totalProg.pct}%)</div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:12px;">🗺️ 各天进度</div>
+          ${[1,2,3,4,5].map(d => {
+            const p = getDayProgress(d);
+            return `
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer" onclick="switchDay(${d})">
+                <span style="font-size:14px;font-weight:600;min-width:50px">Day ${d}</span>
+                <span style="flex:1;font-size:12px;color:var(--muted)">${days[d].subtitle.split("·")[0].trim()}</span>
+                <span style="font-size:13px;font-weight:700;color:${p.pct===100?'var(--green)':'var(--primary)'}">${p.pct}%</span>
+              </div>
+              <div class="progress-bar" style="height:4px;margin-bottom:8px;cursor:pointer" onclick="switchDay(${d})">
+                <div class="progress-fill" style="width:${p.pct}%"></div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:12px;">⚠️ 周一闭馆提醒</div>
+          <div style="font-size:13px;line-height:2">
+            <span class="tip-badge warn">周一闭馆</span> 洛阳博物馆 · 古墓博物馆 · 天子驾六 · 大运河博物馆<br>
+            <span class="tip-badge good">周一开放</span> 龙门石窟 · 老君山 · 白马寺 · 关林
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn btn-outline btn-sm" onclick="resetAll()">🔄 重置全部打卡</button>
+          <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ 打印攻略</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Day panels
+  const prog = getDayProgress(activeDay);
+  const dayTheme = day.theme || "blue";
+
+  main.innerHTML = `
+    <div class="day-panel active">
+      <div class="day-title">${day.title}</div>
+      <div class="day-subtitle">${day.subtitle}</div>
+
+      ${day.weather ? `
+      <div class="weather-row">
+        <div class="weather-day">
+          <span class="w-icon">${day.weather.icon}</span>
+          <span>${day.weather.desc}</span>
+          <div class="w-temp">${day.weather.hi}° / ${day.weather.lo}°</div>
+        </div>
+      </div>
+      ` : ""}
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <span style="font-size:13px;color:var(--muted);font-weight:600;">完成进度</span>
+        <span style="font-size:14px;font-weight:800;color:${prog.pct===100?'var(--green)':'var(--primary)'}">${prog.pct}%</span>
+        <span style="font-size:12px;color:var(--muted)">(${prog.done}/${prog.total})</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${prog.pct}%"></div></div>
+
+      ${day.cards.map((card, ci) => `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon ${card.cat}">${card.icon}</div>
+            <div class="card-title">${card.title}</div>
+            <div class="card-time">🕐 ${card.time}</div>
+          </div>
+          ${card.note ? `<div class="card-note">💡 ${card.note}</div>` : ""}
+          ${card.check.length > 0 ? `
+            <div class="checklist">
+              ${card.check.map((item, ii) => {
+                const checked = isChecked(activeDay, ci, ii);
+                return `
+                  <label onclick="toggleCheck(${activeDay},${ci},${ii})">
+                    <input type="checkbox" ${checked ? "checked" : ""} onchange="event.stopPropagation(); toggleCheck(${activeDay},${ci},${ii})">
+                    <span>${item}</span>
+                  </label>
+                `;
+              }).join("")}
+            </div>
+          ` : ""}
+        </div>
+      `).join("")}
+
+      <div class="toolbar">
+        <button class="btn btn-outline btn-sm" onclick="resetDay(${activeDay})">🔄 重置本日</button>
+        ${activeDay > 1 ? `<button class="btn btn-outline btn-sm" onclick="switchDay(${activeDay-1})">⬅️ 前一天</button>` : ""}
+        ${activeDay < 5 ? `<button class="btn btn-primary btn-sm" onclick="switchDay(${activeDay+1})">后一天 ➡️</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function switchDay(d) {
+  activeDay = d;
+  document.querySelectorAll(".tab").forEach((t, i) => t.classList.toggle("active", i === d));
+  render();
+  document.getElementById("main").scrollIntoView({ behavior: "smooth" });
+}
+
+function resetDay(d) {
+  if (!confirm("重置 Day " + d + " 所有打卡？")) return;
+  days[d].cards.forEach((card, ci) => {
+    card.check.forEach((_, ii) => {
+      delete checks[checkId(d, ci, ii)];
+    });
+  });
+  saveChecks(checks);
+  render();
+}
+
+function resetAll() {
+  if (!confirm("确定要清除所有打卡记录吗？此操作不可恢复！")) return;
+  for (const k in checks) delete checks[k];
+  saveChecks(checks);
+  render();
+}
+
+// ===== TABS =====
+document.getElementById("tabs").addEventListener("click", (e) => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  switchDay(parseInt(tab.dataset.day));
+});
+
+// ===== INIT =====
+render();
+</script>
+</body>
+</html>
